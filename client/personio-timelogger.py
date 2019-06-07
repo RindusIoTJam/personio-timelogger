@@ -9,8 +9,6 @@ import re
 from random import randint
 from datetime import timedelta
 
-SLACK_URL = 'http://4091d574.ngrok.io'
-
 if len(sys.argv) == 1 or sys.argv[1] == '--help':
 	help_message = 'Error. No argument' + '\n\n'
 	help_message += 'Usage: att.py [date]' + '\n'
@@ -33,7 +31,6 @@ MIN_START_TIME = STARTING_HOUR * 60
 COOKIE = 'cookie.txt'
 LOGIN_URL = 'https://rindus.personio.de/login/index';
 ATTENDANCE_URL = 'https://rindus.personio.de/api/v1/employees/' + PROFILE_ID+ '/attendances';
-
 
 def clearCookie():
 	with open(COOKIE, "w"):
@@ -116,7 +113,7 @@ def slack_bang(data):
 	
 	command = "curl --silent -X POST -H 'Content-type: application/json'"
 	command += " --data '" +json_data + "'"
-	command += " http://4091d574.ngrok.io/timelogger"
+	command += " " + SLACK_BOT_URL + "/timelogger"
 	command += " > /dev/null"
 	#print(command)
 	os.system(command)
