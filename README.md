@@ -23,15 +23,21 @@ STARTING_HOUR = 7 # Hour you usually start working in the morning
 WORKING_HOURS = 9 # Including break time
 ```
 
+Change the access right to that file to user-read-only:
+```
+chmod 400 config.py
+```
+
+
 The generated time will always be less than the `WORKING_HOURS` in order not to exceed the maximum allowed by the law as it will be treated as overtime work
 
 #### Usage
-    $ python3 personio-timelogger.py 2019-06-07
+    $ path/to/personio-timelogger.py 2019-06-07
 #### Recomendation
 A cron job can be created to run this automatically every working day (from Monday to Friday).
 For example, the following cron entry will be triggered at 17:00 every working day
 
-    0 17 * * 1-5 python3 personio-timelogger.py $(date +%Y-%m-%d) >/dev/null 2>&1
+    0 17 * * 1-5 ~/bin/personio-timelogger.py $(date +%Y-%m-%d) >/dev/null 2>&1
 
 ##### Next Steps
 - Improve the times of the week 
