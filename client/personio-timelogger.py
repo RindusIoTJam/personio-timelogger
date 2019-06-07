@@ -54,7 +54,7 @@ def doPost(url, data):
 		' --location' +
 		' --cookie ' + COOKIE +
 		' --cookie-jar ' + COOKIE +
-		' --data "' + data + '"' +
+		' --data \'' + data + '\' +
 		' >/dev/null 2>&1'
 	)
 	os.system(command)
