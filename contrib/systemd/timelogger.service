@@ -1,0 +1,12 @@
+[Unit]
+Description=TimeLogger-Bot
+After=multi-user.target
+
+[Service]
+Type=idle
+WorkingDirectory=/opt/personio-timelogger/server
+ExecStart=/usr/bin/node server.js
+ExecReload=/bin/kill -SIGUSR1 $MAINPID
+
+[Install]
+WantedBy=multi-user.target
