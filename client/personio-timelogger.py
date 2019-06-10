@@ -95,12 +95,12 @@ if __name__ == "__main__":
 		'password': PASSWORD
 	}
 	data = parse.urlencode(login_data).encode()
-	#urlOpener.open(LOGIN_URL, data=data)
+	urlOpener.open(LOGIN_URL, data=data)
 
 	# Add attendance
 	attendance_entry = generateAttendance(sys.argv[1])
-	#urlOpener.addheaders = [('Content-Type', 'application/json')]
-	#urlOpener.open(ATTENDANCE_URL, data=bytes(json.dumps(attendance_entry), 'utf-8'))
+	urlOpener.addheaders = [('Content-Type', 'application/json')]
+	urlOpener.open(ATTENDANCE_URL, data=bytes(json.dumps(attendance_entry), 'utf-8'))
 
 	# Inform User
 	slack_bang(attendance_entry)
