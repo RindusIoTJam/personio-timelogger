@@ -8,6 +8,7 @@ import urllib.request as request
 import urllib.parse as parse
 import http.cookiejar
 
+from time import sleep
 from random import randint
 from datetime import timedelta
 
@@ -20,7 +21,7 @@ except ImportError:
 
 if len(sys.argv) == 1 or sys.argv[1] == '--help':
 	help_message = 'Error. No argument' + '\n\n'
-	help_message += 'Usage: att.py [date]' + '\n'
+	help_message += 'Usage: %s [date]' % __file__ + '\n'
 	help_message += 'Note: Date format yyyy/mm/dd' + '\n'
 	print(help_message)
 	exit()
@@ -32,7 +33,7 @@ def checkDate(dateInput):
 
 if not checkDate(sys.argv[1]):
 	error_message = 'Error. Wrong date format' + '\n\n'
-	error_message += 'Usage: att.py [date]' + '\n'
+	error_message += 'Usage: %s [date]' % __file__ + '\n'
 	error_message += 'Note: Date format yyyy/mm/dd' + '\n'
 	print(error_message)
 	exit()
@@ -85,6 +86,9 @@ def slack_bang(data):
 if __name__ == "__main__":
 	# RUN
 
+	# Wait between 1-10 seconds before logging in
+	sleep(randint(1, 10))
+
 	cookieJar = http.cookiejar.CookieJar()
 	cookiePro = request.HTTPCookieProcessor(cookieJar)
 	urlOpener = request.build_opener(cookiePro)
@@ -96,6 +100,9 @@ if __name__ == "__main__":
 	}
 	data = parse.urlencode(login_data).encode()
 	urlOpener.open(LOGIN_URL, data=data)
+
+	# Wait between 1-10 seconds before setting attendance
+	sleep(randint(1, 10))
 
 	# Add attendance
 	attendance_entry = generateAttendance(sys.argv[1])
