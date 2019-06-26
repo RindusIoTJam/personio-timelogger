@@ -34,7 +34,7 @@ app.post('/register', async (req, res) => {
 			text: "Your secret is " + userSecret
 	}};
 
-	request.post('https://slack.com/api/chat.postMessage', data, function (error, response, body) {
+	request.post('https://slack.com/api/chat.postEphemeral', data, function (error, response, body) {
 		res.json();
 	});
 });
