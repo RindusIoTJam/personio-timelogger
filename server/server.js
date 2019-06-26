@@ -31,6 +31,7 @@ app.post('/register', async (req, res) => {
 		form: {
 			token: process.env.SLACK_AUTH_TOKEN,
 			channel: channelId,
+			user: userId,
 			text: "Your secret is " + userSecret
 	}};
 
