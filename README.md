@@ -39,6 +39,88 @@ For example, the following cron entry will be triggered at 17:00 every working d
 
     0 17 * * 1-5 ~/bin/personio-timelogger.py $(date +%Y-%m-%d) >/dev/null 2>&1
 
+You will probably need to scape the `%` character this way:
+
+    0 17 * * 1-5 ~/bin/personio-timelogger.py $(date +\%Y-\%m-\%d) >/dev/null 2>&1
+
+If you use a Mac, `Cron` is deprecated in MacOS. Instead it uses `LaunchAgents`. To configure a launchAgent follow the following guide:
+1. Create a file called `runner.sh` beside `client/personio-timelogger.py`
+2. Put this inside the file, with this repository path in your machine and save it
+```
+#!/bin/bash
+/ABSOLUTE-PATH-TO-THIS-REPO/client/personio-timelogger.py $(date "+%Y-%m-%d")
+```
+3. Give it execution permission `chmod +x runner.sh`
+4. Go to: `~/Library/LaunchAgents`
+5. Create a `.plist`, ie `de.personio.cron.plist` file in there with this content. You can modify to your liking in terms of hours. Save the file
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>de.personio.cron</string>
+    <key>Program</key>
+    <string>/bin/sh</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>-c</string>
+        <string>/ABSOLUTE-PATH-TO-THIS-REPO/client/runner.sh</string>
+    </array>
+    <key>StartCalendarInterval</key>
+    <array>
+        <dict>
+            <key>Hour</key>
+            <integer>17</integer>
+            <key>Minute</key>
+            <integer>45</integer>
+            <key>Weekday</key>
+            <integer>1</integer>
+        </dict>
+        <dict>
+            <key>Hour</key>
+            <integer>17</integer>
+            <key>Minute</key>
+            <integer>55</integer>
+            <key>Weekday</key>
+            <integer>2</integer>
+        </dict>
+        <dict>
+            <key>Hour</key>
+            <integer>17</integer>
+            <key>Minute</key>
+            <integer>38</integer>
+            <key>Weekday</key>
+            <integer>3</integer>
+        </dict>
+        <dict>
+            <key>Hour</key>
+            <integer>17</integer>
+            <key>Minute</key>
+            <integer>43</integer>
+            <key>Weekday</key>
+            <integer>4</integer>
+        </dict>
+        <dict>
+            <key>Hour</key>
+            <integer>17</integer>
+            <key>Minute</key>
+            <integer>47</integer>
+            <key>Weekday</key>
+            <integer>5</integer>
+        </dict>
+    </array>
+    <key>EnvironmentVariables</key>
+    <dict>
+           <key>PATH</key>
+           <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    </dict>
+</dict>
+</plist>
+```
+
+6. Run `launchctl load de.personio.cron.plist`
+
 ##### Next Steps
 - Improve the times of the week 
 
