@@ -1,6 +1,6 @@
 #Personio credentials
 EMAIL = 'name.surname@rindus.de'
-PASSWORD = 'myStrong!Password'
+PASSWORD = r'myStrong!Password'
 PROFILE_ID = '0000000' # This can be found in your personio profile URL
 
 #Slack credentials
