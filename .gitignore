@@ -159,8 +159,11 @@ typings/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file
-.env
-
 # next.js build output
 .next
+
+.DS_Store
+config.py
+cookie.txt
+*/*.db
+.idea
