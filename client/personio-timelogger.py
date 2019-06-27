@@ -22,7 +22,7 @@ except ImportError:
 if len(sys.argv) == 1 or sys.argv[1] == '--help':
 	help_message = 'Error. No argument' + '\n\n'
 	help_message += 'Usage: %s [date]' % __file__ + '\n'
-	help_message += 'Note: Date format yyyy/mm/dd' + '\n'
+	help_message += 'Note: Date format yyyy-mm-dd' + '\n'
 	print(help_message)
 	exit()
 
@@ -34,7 +34,7 @@ def checkDate(dateInput):
 if not checkDate(sys.argv[1]):
 	error_message = 'Error. Wrong date format' + '\n\n'
 	error_message += 'Usage: %s [date]' % __file__ + '\n'
-	error_message += 'Note: Date format yyyy/mm/dd' + '\n'
+	error_message += 'Note: Date format yyyy-mm-dd' + '\n'
 	print(error_message)
 	exit()
 
