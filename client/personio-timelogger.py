@@ -43,10 +43,22 @@ MIN_START_TIME = STARTING_HOUR * 60
 COOKIE = 'cookie.txt'
 LOGIN_URL = 'https://rindus.personio.de/login/index'
 ATTENDANCE_URL = 'https://rindus.personio.de/api/v1/employees/' + PROFILE_ID + '/attendances'
+WORKING_DAYS = ['None', 'Home Office']
 
+
+def formatDate(date):
+	return date + 'T00:00:00+01:00'
+
+def generateMessage(date, message):
+	post_date = formatDate(date)
+	return [{
+		'email': EMAIL,
+		'date': post_date,
+		'message': message
+	}]
 
 def generateAttendance(date):
-	post_date = date + 'T00:00:00+02:00'
+	post_date = formatDate(date)
 	break_time = randint(50, 70)
 	start_time = MIN_START_TIME + randint(5,45)
 	working_time = randint(WORKING_TIME - 25, WORKING_TIME - 5)
@@ -62,15 +74,27 @@ def generateAttendance(date):
 		'comment': ''
 	}]
 
+def getDayInfo(date, urlOpener):
+	month = date[:7]
+	post_date = formatDate(date)
+	response = urlOpener.open(ATTENDANCE_URL + '/' + month).read().decode("utf-8")
+	day_list = json.loads(response)['data']['rows']
+	the_day = next((x for x in day_list if x['date'] == post_date), False)
+	if (the_day):
+		if (the_day['absences_holidays'] in WORKING_DAYS):
+			return { 'isWorkingDay': True }
+	return { 'isWorkingDay': False, 'dayLabel': the_day['absences_holidays'] }
+
 
 def slack_bang(data):
 	postData = {
 		'email': EMAIL,
 		'slackSecret': SLACK_SECRET,
 		'day': str(data[0]['date'])[0:10],
-		'startTime': str(timedelta(minutes=data[0]['start_time'])),
-		'endTime': str(timedelta(minutes=data[0]['end_time'])),
-		'breakTime': str(data[0]['break_time'])
+		'startTime': str(timedelta(minutes=data[0]['start_time'])) if hasattr(data[0], 'start_time') else  '',
+		'endTime': str(timedelta(minutes=data[0]['end_time'])) if hasattr(data[0], 'end_time') else '',
+		'breakTime': str(data[0]['break_time']) if hasattr(data[0], 'break_time') else '',
+		'message': str(data[0]['message']) if hasattr(data[0], 'message') else ''
 	}
 
 	json_data = json.dumps(postData)
@@ -100,6 +124,15 @@ if __name__ == "__main__":
 	}
 	data = parse.urlencode(login_data).encode()
 	urlOpener.open(LOGIN_URL, data=data)
+
+	# Check if today is a working day
+	day_info = getDayInfo(sys.argv[1], urlOpener)
+	if (not bool(day_info['isWorkingDay'])):
+		message_text = 'Not working day: ' + day_info['dayLabel']
+		slack_message = generateMessage(sys.argv[1], message_text)
+		print(message_text)
+		slack_bang(slack_message)
+		exit()
 
 	# Wait between 1-10 seconds before setting attendance
 	sleep(randint(1, 10))
