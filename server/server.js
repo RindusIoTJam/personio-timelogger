@@ -41,7 +41,7 @@ app.post('/register', async (req, res) => {
 });
 
 app.post('/timelogger', async (req, res) => {
-	const { email, slackSecret, day, startTime, endTime, breakTime } = req.body;
+	const { email, slackSecret, day, startTime, endTime, breakTime, message } = req.body;
 
 	const data = {
 		form: {
@@ -64,13 +64,17 @@ app.post('/timelogger', async (req, res) => {
 			};
 			request.post('https://slack.com/api/im.open', data, function (error, response, body) {
 				var channelId = JSON.parse(body).channel.id;
-				
+
+				const text = message
+					? `Day: ${day}\nMessage: ${message}\n`
+					: `Day: ${day}\nStart time: ${startTime}\nEnd time: ${endTime}\nBreak: ${breakTime}\n`
+
 				const data = {
 					form: {
 						token: process.env.SLACK_AUTH_TOKEN,
 						channel: `${channelId}`,
 						as_user: false,
-						text: `Day: ${day}\nStart time: ${startTime}\nEnd time: ${endTime}\nBreak: ${breakTime}\n`
+						text
 					}
 				};
 				request.post('https://slack.com/api/chat.postMessage', data, function (error, response, body) {
