@@ -91,10 +91,10 @@ def slack_bang(data):
 		'email': EMAIL,
 		'slackSecret': SLACK_SECRET,
 		'day': str(data[0]['date'])[0:10],
-		'startTime': str(timedelta(minutes=data[0]['start_time'])) if hasattr(data[0], 'start_time') else  '',
-		'endTime': str(timedelta(minutes=data[0]['end_time'])) if hasattr(data[0], 'end_time') else '',
-		'breakTime': str(data[0]['break_time']) if hasattr(data[0], 'break_time') else '',
-		'message': str(data[0]['message']) if hasattr(data[0], 'message') else ''
+		'startTime': str(timedelta(minutes=data[0]['start_time'])) if (data[0].get('start_time') is not None) else  '',
+		'endTime': str(timedelta(minutes=data[0]['end_time'])) if (data[0].get('end_time') is not None) else '',
+		'breakTime': str(data[0]['break_time']) if (data[0].get('break_time') is not None) else '',
+		'message': str(data[0]['message']) if (data[0].get('message') is not None) else ''
 	}
 
 	json_data = json.dumps(postData)
@@ -136,7 +136,6 @@ if __name__ == "__main__":
 
 	# Wait between 1-10 seconds before setting attendance
 	sleep(randint(1, 10))
-
 	# Add attendance
 	attendance_entry = generateAttendance(sys.argv[1])
 	urlOpener.addheaders = [('Content-Type', 'application/json')]
