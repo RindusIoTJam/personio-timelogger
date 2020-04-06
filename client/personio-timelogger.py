@@ -7,10 +7,12 @@ import re
 import urllib.request as request
 import urllib.parse as parse
 import http.cookiejar
+import pytz
 
 from time import sleep
 from random import randint
 from datetime import timedelta
+from datetime import datetime
 
 from config_sample import *
 try:
@@ -25,6 +27,14 @@ if len(sys.argv) == 1 or sys.argv[1] == '--help':
 	help_message += 'Note: Date format yyyy-mm-dd' + '\n'
 	print(help_message)
 	exit()
+
+
+def is_dst(dt=None, timezone="UTC"):
+        if dt is None:
+                dt = datetime.utcnow()
+        timezone = pytz.timezone(timezone)
+        timezone_aware_date = timezone.localize(dt, is_dst=None)
+        return timezone_aware_date.tzinfo._dst.seconds != 0
 
 
 def checkDate(dateInput):
@@ -47,7 +57,11 @@ WORKING_DAYS = ['None', 'Home Office']
 
 
 def formatDate(date):
-	return date + 'T00:00:00+01:00'
+        if is_dst(timezone="Europe/Madrid"):
+                return date + 'T00:00:00+02:00'
+        else:
+                return date + 'T00:00:00+01:00'
+
 
 def generateMessage(date, message):
 	post_date = formatDate(date)
@@ -56,6 +70,7 @@ def generateMessage(date, message):
 		'date': post_date,
 		'message': message
 	}]
+
 
 def generateAttendance(date):
 	post_date = formatDate(date)
@@ -73,6 +88,7 @@ def generateAttendance(date):
 		'end_time': end_time,
 		'comment': ''
 	}]
+
 
 def getDayInfo(date, urlOpener):
 	month = date[:7]
