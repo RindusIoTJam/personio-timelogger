@@ -54,17 +54,8 @@ app.post('/timelogger', async (req, res) => {
 		const userId = JSON.parse(body).user.id;
 
 		const validUser = await checkSecret(userId, slackSecret);
+
 		if (validUser) {
-			const data = {
-				form: {
-					token: process.env.SLACK_AUTH_TOKEN,
-					users: `${userId}`,
-				}
-			};
-
-			request.post('https://slack.com/api/conversations.open', data, function (error, response, body) {
-			const channelId = JSON.parse(body).channel.id;
-
 				const text = message
 					? `Day: ${day}\nMessage: ${message}\n`
 					: `Day: ${day}\nStart time: ${startTime}\nEnd time: ${endTime}\nBreak: ${breakTime}\n`
@@ -72,16 +63,14 @@ app.post('/timelogger', async (req, res) => {
 				const data = {
 					form: {
 						token: process.env.SLACK_AUTH_TOKEN,
-						channel: `${channelId}`,
-						as_user: false,
+						channel: `${userId}`,
 						text
 					}
 				};
+
 				request.post('https://slack.com/api/chat.postMessage', data, function (error, response, body) {
 					res.json();
 				});
-				
-			});
 		} else {
 			res.json({ "error": "Invalid secret" });
 		}
