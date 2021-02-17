@@ -53,7 +53,7 @@ MIN_START_TIME = STARTING_HOUR * 60
 COOKIE = 'cookie.txt'
 LOGIN_URL = 'https://rindus.personio.de/login/index'
 ATTENDANCE_URL = 'https://rindus.personio.de/api/v1/employees/' + PROFILE_ID + '/attendances'
-WORKING_DAYS = ['None', 'Home Office']
+WORKING_DAYS = ['None', 'Home Office', 'Ninguno']
 
 
 def formatDate(date):
