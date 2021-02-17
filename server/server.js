@@ -51,19 +51,19 @@ app.post('/timelogger', async (req, res) => {
 	}
 
 	request.post('https://slack.com/api/users.lookupByEmail', data, async (error, response, body) => {
-		var userId = JSON.parse(body).user.id;
+		const userId = JSON.parse(body).user.id;
 
 		const validUser = await checkSecret(userId, slackSecret);
-
 		if (validUser) {
 			const data = {
 				form: {
 					token: process.env.SLACK_AUTH_TOKEN,
-					user: `${userId}`,
+					users: `${userId}`,
 				}
 			};
-			request.post('https://slack.com/api/im.open', data, function (error, response, body) {
-				var channelId = JSON.parse(body).channel.id;
+
+			request.post('https://slack.com/api/conversations.open', data, function (error, response, body) {
+			const channelId = JSON.parse(body).channel.id;
 
 				const text = message
 					? `Day: ${day}\nMessage: ${message}\n`
@@ -82,6 +82,8 @@ app.post('/timelogger', async (req, res) => {
 				});
 				
 			});
+		} else {
+			res.json({ "error": "Invalid secret" });
 		}
 	});
 })
