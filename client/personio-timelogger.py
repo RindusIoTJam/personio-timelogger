@@ -71,7 +71,9 @@ def generateMessage(date, message):
     post_date = formatDate(date)
     return [{"email": EMAIL, "date": post_date, "message": message}]
 
-
+def format_datetime(date, time):
+    return f'{date}T{time}Z'
+    
 def generateAttendance(date):
     post_date = formatDate(date)
     break_time = randint(50, 70)
@@ -81,13 +83,22 @@ def generateAttendance(date):
 
     return [
         {
-            "email": EMAIL,
-            "id": None,
-            "date": post_date,
-            "start_time": start_time,
-            "break_time": break_time,
-            "end_time": end_time,
+            "id": str(uuid.uuid1()),
+            "start": format_datetime(date, start_time),
+            "end": format_datetime(date, end_time),
             "comment": "",
+            "project_id": None,
+            "employee_id": employee_id,
+            "activity_id": None,
+        },
+        {
+            "id": str(uuid.uuid1()),
+            "start": format_datetime(date, start_time),
+            "end": format_datetime(date, end_time),
+            "comment": "",
+            "project_id": None,
+            "employee_id": employee_id,
+            "activity_id": None,
         }
     ]
 
@@ -147,6 +158,21 @@ if __name__ == "__main__":
         headers={"Content-Type": "application/x-www-form-urlencoded"},
         data={"email": EMAIL, "password": PASSWORD}
     )
+
+
+
+    response = session.post(
+        ATTENDANCE_URL,
+        json=[format_period_data(
+            attendance_date, "09:31:00", "16:45:00", PROFILE_ID
+        )],
+    )
+
+    data = json.loads(response.text)
+    try:
+        return f"Error: {data['error']['message']}"
+    except KeyError:
+        return f"Success: attendance on {attendance_date} registered!"
 
     # Inform User
     slack_bang(response.text)
