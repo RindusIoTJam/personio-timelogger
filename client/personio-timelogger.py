@@ -8,6 +8,7 @@ import urllib.request as request
 import urllib.parse as parse
 import http.cookiejar
 import pytz
+import requests
 
 from time import sleep
 from random import randint
@@ -138,30 +139,14 @@ if __name__ == "__main__":
     # Wait between 1-10 seconds before logging in
     sleep(randint(1, 10))
 
-    cookieJar = http.cookiejar.CookieJar()
-    cookiePro = request.HTTPCookieProcessor(cookieJar)
-    urlOpener = request.build_opener(cookiePro)
+    # Create request session
+    session = requests.Session()
 
-    # Login
-    login_data = {"email": EMAIL, "password": PASSWORD}
-    data = parse.urlencode(login_data).encode()
-    urlOpener.open(LOGIN_URL, data=data)
-
-    # Check if today is a working day
-    day_info = getDayInfo(sys.argv[1], urlOpener)
-    if not bool(day_info["isWorkingDay"]):
-        message_text = "Not working day: " + day_info["dayLabel"]
-        slack_message = generateMessage(sys.argv[1], message_text)
-        print(message_text)
-        slack_bang(slack_message)
-        exit()
-
-        # Wait between 1-10 seconds before setting attendance
-    sleep(randint(1, 10))
-    # Add attendance
-    attendance_entry = generateAttendance(sys.argv[1])
-    urlOpener.addheaders = [("Content-Type", "application/json")]
-    urlOpener.open(ATTENDANCE_URL, data=bytes(json.dumps(attendance_entry), "utf-8"))
+    response = session.post(
+        LOGIN_URL,
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+        data={"email": EMAIL, "password": PASSWORD}
+    )
 
     # Inform User
-    slack_bang(attendance_entry)
+    slack_bang(response.text)
