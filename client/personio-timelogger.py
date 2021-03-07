@@ -14,10 +14,19 @@ from random import randint
 from datetime import timedelta
 from datetime import datetime
 
-from config_sample import *
-
 try:
-    from config import *
+    from config import (
+        ATTENDANCE_URL,
+        EMAIL,
+        LOGIN_URL,
+        PASSWORD,
+        SLACK_BOT_URL,
+        SLACK_SECRET,
+        STARTING_HOUR,
+        WORKING_DAYS,
+        WORKING_HOURS
+    )
+
 except ImportError:
     print("WARNING: no config.py found. Please RTFM!")
     sys.exit(1)
@@ -29,6 +38,8 @@ if len(sys.argv) == 1 or sys.argv[1] == "--help":
     print(help_message)
     exit()
 
+WORKING_TIME = WORKING_HOURS * 60
+MIN_START_TIME = STARTING_HOUR * 60
 
 def is_dst(dt=None, timezone="UTC"):
     if dt is None:
@@ -41,17 +52,12 @@ def is_dst(dt=None, timezone="UTC"):
 def checkDate(dateInput):
     return re.fullmatch(r"\A([\d]{4})-([\d]{2})-([\d]{2})", dateInput)
 
-
 if not checkDate(sys.argv[1]):
     error_message = "Error. Wrong date format" + "\n\n"
     error_message += "Usage: %s [date]" % __file__ + "\n"
     error_message += "Note: Date format yyyy-mm-dd" + "\n"
     print(error_message)
     exit()
-
-WORKING_TIME = WORKING_HOURS * 60
-MIN_START_TIME = STARTING_HOUR * 60
-
 
 def formatDate(date):
     if is_dst(timezone="Europe/Madrid"):
