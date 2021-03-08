@@ -8,9 +8,11 @@ SLACK_SECRET = 'aaaaaaa'
 SLACK_BOT_URL = 'URL-TO-BOT'
 
 #App configuration
-STARTING_HOUR = 7 # Hour you usually start working in the morning
-WORKING_HOURS = 9 # Including break time
-BREAK_HOUR = 13
+STARTING_HOUR = "08:00" # Hour you usually start working in the morning
+BREAK_HOUR = "13:00"  # Hour you usually take your lunch break
+WORKING_HOURS = 9  # Including break time
+BREAK_TIME_MINUTES = 30
+
 
 # Personio Configuration
 COOKIE = "cookie.txt"

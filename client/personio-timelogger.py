@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import datetime
 import sys
 import os
 import json
@@ -10,19 +11,19 @@ import uuid
 
 from time import sleep
 from random import randint
-from datetime import timedelta
-from datetime import datetime
+from datetime import datetime, timedelta
 
 try:
     from config_sample import (
         ATTENDANCE_URL,
         BREAK_HOUR,
+        BREAK_TIME_MINUTES,
         EMAIL,
         LOGIN_URL,
         PASSWORD,
         PROFILE_ID,
         SLACK_BOT_URL,
-        SLACK_MESSAGE,
+        # SLACK_MESSAGE,
         SLACK_SECRET,
         STARTING_HOUR,
         WORKING_HOURS,
@@ -37,26 +38,30 @@ def check_date(dateInput):
     return re.fullmatch(r"\A([\d]{4})-([\d]{2})-([\d]{2})", dateInput)
 
 
-def format_datetime(date, time):
+def format_datetime(time_to):
     return f"{date}T{time}Z"
 
 
-def generate_attendance(date, starting_hour, break_hour, working_hours, employee_id):
-    min_start_time = starting_hour * 60
+def generate_attendance(date, starting_hour, break_hour, working_hours, break_time_minutes, employee_id):
+    start_time = datetime.strptime(f"{date} {starting_hour}", '%Y-%m-%d %H:%M')
+    break_time = datetime.strptime(f"{date} {break_hour}", '%Y-%m-%d %H:%M')
     working_time = working_hours * 60
-    break_time = break_hour * 60
-
-    # randint(50, 70)
-
-    start_time = min_start_time + randint(5, 45)
     working_time = randint(working_time - 25, working_time - 5)
-    end_time = start_time + working_time
+
+    start_time += timedelta(minutes=randint(5, 45))
+    break_time += timedelta(minutes=randint(0, 30))
+
+    lunch_time = break_time_minutes + randint(0, 15)
+
+    start_time_second = break_time + timedelta(minutes=lunch_time)
+    working_time_second = int(working_time - (start_time_second - start_time).total_seconds() / 60)
+    end_time = start_time_second + timedelta(minutes=working_time_second + randint(0,30))
 
     return [
         {
             "id": str(uuid.uuid1()),
-            "start": format_datetime(date, start_time),
-            "end": format_datetime(date, end_time),
+            "start": start_time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "end": break_time.strftime("%Y-%m-%dT%H:%M:%SZ"),
             "comment": "",
             "project_id": None,
             "employee_id": employee_id,
@@ -64,8 +69,8 @@ def generate_attendance(date, starting_hour, break_hour, working_hours, employee
         },
         {
             "id": str(uuid.uuid1()),
-            "start": format_datetime(date, start_time),
-            "end": format_datetime(date, end_time),
+            "start": start_time_second.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "end": end_time.strftime("%Y-%m-%dT%H:%M:%SZ"),
             "comment": "",
             "project_id": None,
             "employee_id": employee_id,
@@ -117,35 +122,31 @@ if __name__ == "__main__":
     attendance_date = sys.argv[1]
 
     # Wait between 1-10 seconds before logging in
-    sleep(randint(1, 10))
+    # sleep(randint(1, 10))
 
-    print(generate_attendance(
-        sys.argv[1], STARTING_HOUR, BREAK_HOUR, WORKING_HOURS, PROFILE_ID
-    ))
+    # Create request session
+    session = requests.Session()
 
-    # # Create request session
-    # session = requests.Session()
+    # Login into Personio
+    response = session.post(
+        LOGIN_URL,
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+        data={"email": EMAIL, "password": PASSWORD},
+    )
 
-    # # Login into Personio
-    # response = session.post(
-    #     LOGIN_URL,
-    #     headers={"Content-Type": "application/x-www-form-urlencoded"},
-    #     data={"email": EMAIL, "password": PASSWORD},
-    # )
+    # Log the attendance
+    response = session.post(
+        ATTENDANCE_URL,
+        json=generate_attendance(
+            sys.argv[1], STARTING_HOUR, BREAK_HOUR, WORKING_HOURS, BREAK_TIME_MINUTES, PROFILE_ID
+        ),
+    )
 
-    # # Log the attendance
-    # response = session.post(
-    #     ATTENDANCE_URL,
-    #     json=generate_attendance(
-    #         sys.argv[1], STARTING_HOUR, BREAK_HOUR, WORKING_HOURS, PROFILE_ID
-    #     ),
-    # )
-
-    # data = json.loads(response.text)
-    # try:
-    #     message = f"Error: {attendance_date} - {data['error']['message']}"
-    # except KeyError:
-    #     message = f"Success: attendance on {attendance_date} registered!"
+    data = json.loads(response.text)
+    try:
+        message = f"Error: {attendance_date} - {data['error']['message']}"
+    except KeyError:
+        message = f"Success: attendance on {attendance_date} registered!"
 
     # Inform User
-    # slack_bang(message)
+    slack_bang(message)
