@@ -1,17 +1,14 @@
 #!/usr/bin/env python3
 
-import datetime
-import sys
-import os
 import json
+import os
 import re
-import pytz
-import requests
+import sys
 import uuid
-
-from time import sleep
-from random import randint
 from datetime import datetime, timedelta
+from random import randint
+
+import requests
 
 try:
     from config_sample import (
@@ -38,9 +35,11 @@ def check_date(dateInput):
     return re.fullmatch(r"\A([\d]{4})-([\d]{2})-([\d]{2})", dateInput)
 
 
-def generate_attendance(date, starting_hour, break_hour, working_hours, break_time_minutes, employee_id):
-    start_time = datetime.strptime(f"{date} {starting_hour}", '%Y-%m-%d %H:%M')
-    break_time = datetime.strptime(f"{date} {break_hour}", '%Y-%m-%d %H:%M')
+def generate_attendance(
+    date, starting_hour, break_hour, working_hours, break_time_minutes, employee_id
+):
+    start_time = datetime.strptime(f"{date} {starting_hour}", "%Y-%m-%d %H:%M")
+    break_time = datetime.strptime(f"{date} {break_hour}", "%Y-%m-%d %H:%M")
     working_time = working_hours * 60
     working_time = randint(working_time - 25, working_time - 5)
 
@@ -50,7 +49,9 @@ def generate_attendance(date, starting_hour, break_hour, working_hours, break_ti
     lunch_time = break_time_minutes + randint(0, 15)
 
     start_time_second = break_time + timedelta(minutes=lunch_time)
-    working_time_second = int(working_time - (start_time_second - start_time).total_seconds() / 60)
+    working_time_second = int(
+        working_time - (start_time_second - start_time).total_seconds() / 60
+    )
     end_time = start_time_second + timedelta(minutes=working_time_second)
 
     return [
@@ -131,7 +132,12 @@ if __name__ == "__main__":
     response = session.post(
         ATTENDANCE_URL,
         json=generate_attendance(
-            sys.argv[1], STARTING_HOUR, BREAK_HOUR, WORKING_HOURS, BREAK_TIME_MINUTES, PROFILE_ID
+            sys.argv[1],
+            STARTING_HOUR,
+            BREAK_HOUR,
+            WORKING_HOURS,
+            BREAK_TIME_MINUTES,
+            PROFILE_ID,
         ),
     )
 
