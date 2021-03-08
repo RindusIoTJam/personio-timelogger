@@ -28,7 +28,7 @@ try:
 
 except ImportError:
     print("WARNING: no config.py found. Please RTFM!")
-    sys.exit(1)
+    exit()
 
 
 def check_date(dateInput):
