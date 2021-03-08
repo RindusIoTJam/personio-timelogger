@@ -40,7 +40,7 @@ def generate_attendance(
 ):
     start_time = datetime.strptime(f"{date} {starting_hour}", "%Y-%m-%d %H:%M")
     break_time = datetime.strptime(f"{date} {break_hour}", "%Y-%m-%d %H:%M")
-    working_time = working_hours * 60
+    working_time = (working_hours + 1) * 60
     working_time = randint(working_time - 25, working_time - 5)
 
     start_time += timedelta(minutes=randint(5, 45))
