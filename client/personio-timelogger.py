@@ -23,7 +23,7 @@ try:
         PASSWORD,
         PROFILE_ID,
         SLACK_BOT_URL,
-        # SLACK_MESSAGE,
+        SLACK_MESSAGE,
         SLACK_SECRET,
         STARTING_HOUR,
         WORKING_HOURS,
@@ -148,5 +148,8 @@ if __name__ == "__main__":
     except KeyError:
         message = f"Success: attendance on {attendance_date} registered!"
 
-    # Inform User
-    slack_bang(message)
+    if SLACK_MESSAGE:
+        # Inform User
+        slack_bang(message)
+    else:
+        print(message)

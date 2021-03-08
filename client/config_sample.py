@@ -4,6 +4,7 @@ PASSWORD = r'myStrong!Password'
 PROFILE_ID = '0000000' # This can be found in your personio profile URL
 
 #Slack credentials
+SLACK_MESSAGE = False
 SLACK_SECRET = 'aaaaaaa'
 SLACK_BOT_URL = 'URL-TO-BOT'
 
