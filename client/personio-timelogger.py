@@ -5,6 +5,7 @@ import os
 import re
 import sys
 import uuid
+import functools
 from datetime import datetime, timedelta
 from random import randint
 
@@ -12,10 +13,12 @@ import requests
 
 try:
     from config import (
+        ABSENCES_URL,
         ATTENDANCE_URL,
         BREAK_HOUR,
         BREAK_TIME_MINUTES,
         EMAIL,
+        HOLIDAYS_URL,
         LOGIN_URL,
         PASSWORD,
         PROFILE_ID,
@@ -119,6 +122,31 @@ if __name__ == "__main__":
         headers={"Content-Type": "application/x-www-form-urlencoded"},
         data={"email": EMAIL, "password": PASSWORD},
     )
+
+    # Check Working Day
+    response = session.get(
+        f'{HOLIDAYS_URL}&start_date={attendance_date}&end_date={attendance_date}'
+    )
+    isHoliday = len(json.loads(response.text)['data'])
+
+    # Check User Abscense
+    response = session.get(
+        f'{ABSENCES_URL}/{PROFILE_ID}/absences/types'
+    )
+    absenceTypes = ','.join(list(map(lambda a : str(a['id']), json.loads(response.text)['data'])))
+    response = session.get(
+        f'{ABSENCES_URL}/{PROFILE_ID}/absences/periods?filter[startDate]={attendance_date}&filter[endDate]={attendance_date}&filter[absenceTypes]={absenceTypes}'
+    )
+    isAbsence = len(json.loads(response.text)['data'])
+
+    if isHoliday or isAbsence:
+        message = 'Not working day'
+        if SLACK_MESSAGE:
+            # Inform User
+            slack_bang(attendance_date, message)
+        else:
+            print(message)
+        exit()
 
     # Log the attendance
     response = session.post(
