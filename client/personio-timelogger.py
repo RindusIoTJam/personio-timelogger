@@ -38,10 +38,6 @@ def check_date(dateInput):
     return re.fullmatch(r"\A([\d]{4})-([\d]{2})-([\d]{2})", dateInput)
 
 
-def format_datetime(time_to):
-    return f"{date}T{time}Z"
-
-
 def generate_attendance(date, starting_hour, break_hour, working_hours, break_time_minutes, employee_id):
     start_time = datetime.strptime(f"{date} {starting_hour}", '%Y-%m-%d %H:%M')
     break_time = datetime.strptime(f"{date} {break_hour}", '%Y-%m-%d %H:%M')
@@ -120,9 +116,6 @@ if __name__ == "__main__":
         exit()
 
     attendance_date = sys.argv[1]
-
-    # Wait between 1-10 seconds before logging in
-    # sleep(randint(1, 10))
 
     # Create request session
     session = requests.Session()
