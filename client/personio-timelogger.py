@@ -51,7 +51,7 @@ def generate_attendance(date, starting_hour, break_hour, working_hours, break_ti
 
     start_time_second = break_time + timedelta(minutes=lunch_time)
     working_time_second = int(working_time - (start_time_second - start_time).total_seconds() / 60)
-    end_time = start_time_second + timedelta(minutes=working_time_second + randint(0,30))
+    end_time = start_time_second + timedelta(minutes=working_time_second)
 
     return [
         {
