@@ -11,7 +11,7 @@ from random import randint
 import requests
 
 try:
-    from config_sample import (
+    from config import (
         ATTENDANCE_URL,
         BREAK_HOUR,
         BREAK_TIME_MINUTES,
