@@ -30,8 +30,15 @@ try:
     )
 
 except ImportError:
-    print("WARNING: no config.py found. Please RTFM!")
-    exit()
+    if len(sys.argv) == 2:
+        data = json.loads(sys.argv[1])
+        for attr, value in data.items():
+            locals()[attr] = value
+        sys.argv[1] = data['DAY']
+    else:
+        print("WARNING: no config.py found. Please RTFM!")
+        exit()
+    
 
 
 def check_date(dateInput):
