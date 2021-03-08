@@ -76,23 +76,15 @@ def generate_attendance(
     ]
 
 
-def slack_bang(data):
+def slack_bang(attendance_date, message):
     postData = {
         "email": EMAIL,
         "slackSecret": SLACK_SECRET,
-        "day": str(data[0]["date"])[0:10],
-        "startTime": str(timedelta(minutes=data[0]["start_time"]))
-        if (data[0].get("start_time") is not None)
-        else "",
-        "endTime": str(timedelta(minutes=data[0]["end_time"]))
-        if (data[0].get("end_time") is not None)
-        else "",
-        "breakTime": str(data[0]["break_time"])
-        if (data[0].get("break_time") is not None)
-        else "",
-        "message": str(data[0]["message"])
-        if (data[0].get("message") is not None)
-        else "",
+        "day": attendance_date,
+        "startTime": "",
+        "endTime": "",
+        "breakTime": "",
+        "message": message,
     }
 
     json_data = json.dumps(postData)
@@ -149,6 +141,6 @@ if __name__ == "__main__":
 
     if SLACK_MESSAGE:
         # Inform User
-        slack_bang(message)
+        slack_bang(attendance_date, message)
     else:
         print(message)
