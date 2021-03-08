@@ -17,3 +17,4 @@ BREAK_TIME_MINUTES = 30
 # Personio Configuration
 LOGIN_URL = "https://rindus.personio.de/login/index"
 ATTENDANCE_URL = f'https://rindus.personio.de/api/v1/attendances/periods'
+HOLIDAYS_URL = f'https://rindus.personio.de/api/v1/holidays?holiday_calendar_ids[]=977'
