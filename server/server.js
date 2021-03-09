@@ -200,8 +200,11 @@ app.get('/log', async (req, res) => {
 		BREAK_TIME_MINUTES: config.breakTime, //30,
 
 		LOGIN_URL: 'https://rindus.personio.de/login/index',
-		ATTENDANCE_URL: 'https://rindus.personio.de/api/v1/attendances/periods'
+		ATTENDANCE_URL: 'https://rindus.personio.de/api/v1/attendances/periods',
+		HOLIDAYS_URL: 'https://rindus.personio.de/api/v1/holidays?holiday_calendar_ids[]=977',
+		ABSENCES_URL: 'https://rindus.personio.de/api/v1/employees/'
 	};
+
 	if (config.slackSecret) {
 		pythonConfig['SLACK_MESSAGE'] = true;
 		pythonConfig['SLACK_SECRET'] = config.slackSecret;
