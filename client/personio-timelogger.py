@@ -30,15 +30,8 @@ try:
     )
 
 except ImportError:
-    if len(sys.argv) == 2:
-        data = json.loads(sys.argv[1])
-        for attr, value in data.items():
-            locals()[attr] = value
-        sys.argv[1] = data['DAY']
-    else:
-        print("WARNING: no config.py found. Please RTFM!")
-        exit()
-    
+    print("WARNING: no config.py found. Please RTFM!")
+    exit()
 
 
 def check_date(dateInput):
@@ -99,23 +92,35 @@ def slack_bang(attendance_date, message):
 
     json_data = json.dumps(postData)
 
-    command = "curl --silent -X POST -H 'Content-type: application/json'"
-    command += " --data '" + json_data + "'"
-    command += " " + SLACK_BOT_URL + "/timelogger"
-    command += " > /dev/null"
-    # print(command)
+    command = (
+        f"curl --silent -X POST -H 'Content-type: application/json'"
+        f" --data '{json_data}'"
+        f" {SLACK_BOT_URL}/timelogger"
+        f" > /dev/null"
+    )
     os.system(command)
 
 
+def inform_user(attendance_date, message, slack_message):
+    if slack_message:
+        slack_bang(attendance_date, message)
+    else:
+        print(message)
+
+
 if __name__ == "__main__":
-    if len(sys.argv) == 1 or sys.argv[1] == "--help" or not check_date(sys.argv[1]):
-        print(
-            f"""
-            Error. No argument or wrong date format\n\n
-            Usage: {__file__} [date]\n
-            Note: Date format yyyy-mm-dd \n
-            """
-        )
+    if len(sys.argv) == 1 or sys.argv[1] == "--help":
+        print(f"Error: No argument / Usage: {__file__} [date]")
+        exit()
+
+    try:
+        locals().update(json.loads(sys.argv[1]))
+        sys.argv[1] = DAY
+    except ValueError:
+        pass
+
+    if not check_date(sys.argv[1]):
+        print(f"ERROR: Wrong date format / Expected format yyyy-mm-dd")
         exit()
 
     attendance_date = sys.argv[1]
@@ -132,27 +137,28 @@ if __name__ == "__main__":
 
     # Check Working Day
     response = session.get(
-        f'{HOLIDAYS_URL}&start_date={attendance_date}&end_date={attendance_date}'
+        f"{HOLIDAYS_URL}"
+        f"&start_date={attendance_date}"
+        f"&end_date={attendance_date}"
     )
-    isHoliday = len(json.loads(response.text)['data'])
+    isHoliday = len(json.loads(response.text)["data"])
 
     # Check User Abscense
-    response = session.get(
-        f'{ABSENCES_URL}/{PROFILE_ID}/absences/types'
+    response = session.get(f"{ABSENCES_URL}/{PROFILE_ID}/absences/types")
+    absenceTypes = ",".join(
+        list(map(lambda a: str(a["id"]), json.loads(response.text)["data"]))
     )
-    absenceTypes = ','.join(list(map(lambda a : str(a['id']), json.loads(response.text)['data'])))
+
     response = session.get(
-        f'{ABSENCES_URL}/{PROFILE_ID}/absences/periods?filter[startDate]={attendance_date}&filter[endDate]={attendance_date}&filter[absenceTypes]={absenceTypes}'
+        f"{ABSENCES_URL}/{PROFILE_ID}/absences/"
+        f"periods?filter[startDate]={attendance_date}"
+        f"&filter[endDate]={attendance_date}"
+        f"&filter[absenceTypes]={absenceTypes}"
     )
-    isAbsence = len(json.loads(response.text)['data'])
+    isAbsence = len(json.loads(response.text)["data"])
 
     if isHoliday or isAbsence:
-        message = 'Not working day'
-        if SLACK_MESSAGE:
-            # Inform User
-            slack_bang(attendance_date, message)
-        else:
-            print(message)
+        inform_user(attendance_date, "Not working day", SLACK_MESSAGE)
         exit()
 
     # Log the attendance
@@ -174,8 +180,4 @@ if __name__ == "__main__":
     except KeyError:
         message = f"Success: attendance on {attendance_date} registered!"
 
-    if SLACK_MESSAGE:
-        # Inform User
-        slack_bang(attendance_date, message)
-    else:
-        print(message)
+    inform_user(attendance_date, message, SLACK_MESSAGE)
