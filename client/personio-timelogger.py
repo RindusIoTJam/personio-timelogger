@@ -5,7 +5,7 @@ import os
 import re
 import sys
 import uuid
-import functools
+
 from datetime import datetime, timedelta
 from random import randint
 
@@ -145,21 +145,24 @@ if __name__ == "__main__":
 
     # Check User Abscense
     response = session.get(f"{ABSENCES_URL}/{PROFILE_ID}/absences/types")
-    absenceTypes = ",".join(
-        list(map(lambda a: str(a["id"]), json.loads(response.text)["data"]))
-    )
+    try: 
+        absenceTypes = ",".join(
+            list(map(lambda a: str(a["id"]), json.loads(response.text)["data"]))
+        )
 
-    response = session.get(
-        f"{ABSENCES_URL}/{PROFILE_ID}/absences/"
-        f"periods?filter[startDate]={attendance_date}"
-        f"&filter[endDate]={attendance_date}"
-        f"&filter[absenceTypes]={absenceTypes}"
-    )
-    isAbsence = len(json.loads(response.text)["data"])
+        response = session.get(
+            f"{ABSENCES_URL}/{PROFILE_ID}/absences/"
+            f"periods?filter[startDate]={attendance_date}"
+            f"&filter[endDate]={attendance_date}"
+            f"&filter[absenceTypes]={absenceTypes}"
+        )
+        isAbsence = len(json.loads(response.text)["data"])
 
-    if isHoliday or isAbsence:
-        inform_user(attendance_date, "Not working day", SLACK_MESSAGE)
-        exit()
+        if isHoliday or isAbsence:
+            inform_user(attendance_date, "Not working day", SLACK_MESSAGE)
+            exit()
+    except KeyError:
+        pass
 
     # Log the attendance
     response = session.post(
